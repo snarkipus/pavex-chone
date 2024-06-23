@@ -31,7 +31,7 @@ impl AuthStatus {
             AuthStatus::Success
         } else {
             AuthStatus::LoginFail
-        };
+        };  
 
         Ok(auth_status)
     }

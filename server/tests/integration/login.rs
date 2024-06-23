@@ -1,6 +1,7 @@
 use crate::helpers::TestApi;
 use app::login_payload::LoginPayload;
 use app::routes::login::{AuthResult, Message};
+use reqwest::header::SET_COOKIE;
 use reqwest::StatusCode;
 
 #[tokio::test]
@@ -26,6 +27,14 @@ async fn authorize_valid_credentials() {
     };
 
     assert_eq!(response.status(), StatusCode::OK);
+
+    let auth_token = response
+        .headers()
+        .get(SET_COOKIE)
+        .and_then(|value| value.to_str().ok())
+        .expect("Failed to extract auth token");
+
+    assert_eq!(auth_token, "auth-token=user-1.exp.sign");
     assert_eq!(response.json::<Message>().await.unwrap(), success_message);
 }
 

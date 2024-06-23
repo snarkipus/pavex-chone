@@ -1,8 +1,8 @@
 use crate::login_payload::{AuthStatus, LoginPayload};
+use pavex::cookie::{ResponseCookie, ResponseCookies};
 use pavex::request::body::JsonBody;
 use pavex::response::body::Json;
-use pavex::response::Response; // Add this line to import the `json` macro
-
+use pavex::response::Response;
 #[derive(Debug, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct Message {
     pub result: AuthResult,
@@ -13,16 +13,23 @@ pub struct AuthResult {
     pub success: bool,
 }
 
-pub async fn post(_body: &JsonBody<LoginPayload>, auth_status: AuthStatus) -> Response {
+pub async fn post(
+    _body: &JsonBody<LoginPayload>,
+    auth_status: AuthStatus,
+    response_cookies: &mut ResponseCookies,
+) -> Response {
     if let AuthStatus::LoginFail = auth_status {
         return Response::unauthorized().set_typed_body("Invalid Credentials");
     }
+
+    // Set a cookie to indicate that the user is authenticated
+    let cookie = ResponseCookie::new("auth-token", "user-1.exp.sign");
+    response_cookies.insert(cookie);
 
     let message = Message {
         result: AuthResult { success: true },
     };
 
     let json = Json::new(message).expect("Failed to serialize the response body");
-
     Response::ok().set_typed_body(json)
 }
