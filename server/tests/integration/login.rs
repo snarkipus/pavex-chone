@@ -1,5 +1,6 @@
 use crate::helpers::TestApi;
 use app::login_payload::LoginPayload;
+use app::routes::login::{AuthResult, Message};
 use reqwest::StatusCode;
 
 #[tokio::test]
@@ -20,8 +21,12 @@ async fn authorize_valid_credentials() {
         .await
         .expect("Failed to execute request");
 
+    let success_message = Message {
+        result: AuthResult { success: true },
+    };
+
     assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(response.text().await.unwrap(), "Hello, Luca!");
+    assert_eq!(response.json::<Message>().await.unwrap(), success_message);
 }
 
 #[tokio::test]
@@ -59,5 +64,5 @@ async fn reject_missing_credentials() {
         .expect("Failed to execute request");
 
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
-    assert_eq!(response.text().await.unwrap(), "Invalid Credentials");
+    assert_eq!(response.text().await.unwrap(), "Terrible Credentials");
 }

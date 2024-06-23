@@ -1,15 +1,28 @@
 use crate::login_payload::{AuthStatus, LoginPayload};
 use pavex::request::body::JsonBody;
-use pavex::response::Response;
+use pavex::response::body::Json;
+use pavex::response::Response; // Add this line to import the `json` macro
 
-pub async fn post(body: &JsonBody<LoginPayload>, auth_status: AuthStatus) -> Response {
-    match auth_status {
-      AuthStatus::Invalid => {
-        Response::unauthorized().set_typed_body("Invalid Credentials")
-      }
-      _ => {
-        let (name, _pwd) = (&body.0.username, &body.0.pwd);
-        Response::ok().set_typed_body(format!("Hello, {name}!"))
-      }
+#[derive(Debug, serde::Deserialize, serde::Serialize, PartialEq)]
+pub struct Message {
+    pub result: AuthResult,
+}
+
+#[derive(Debug, serde::Deserialize, serde::Serialize, PartialEq)]
+pub struct AuthResult {
+    pub success: bool,
+}
+
+pub async fn post(_body: &JsonBody<LoginPayload>, auth_status: AuthStatus) -> Response {
+    if let AuthStatus::LoginFail = auth_status {
+        return Response::unauthorized().set_typed_body("Invalid Credentials");
     }
+
+    let message = Message {
+        result: AuthResult { success: true },
+    };
+
+    let json = Json::new(message).expect("Failed to serialize the response body");
+
+    Response::ok().set_typed_body(json)
 }

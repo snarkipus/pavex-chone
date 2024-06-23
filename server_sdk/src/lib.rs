@@ -470,7 +470,7 @@ pub mod route_2 {
                 };
             }
         };
-        let v6 = app::login_payload::AuthStatus::extract(v2, &v5);
+        let v6 = app::login_payload::AuthStatus::extract(v2, &v5).await;
         let v7 = match v6 {
             Ok(ok) => ok,
             Err(v7) => {
