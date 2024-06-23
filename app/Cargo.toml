@@ -22,3 +22,5 @@ pavex_cli_client = { version = "0.1.44" }
 tracing = "0.1"
 serde = { version = "1", features = ["derive"] }
 workspace_hack = { path = "../workspace_hack" }
+anyhow = "1"
+thiserror = "1"

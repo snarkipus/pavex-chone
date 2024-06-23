@@ -575,12 +575,12 @@ pub mod route_2 {
                 };
             }
         };
-        let v7 = app::login_payload::AuthStatus::extract(v0, &v6).await;
+        let v7 = app::credentials::AuthStatus::extract(v0, &v6).await;
         let v8 = match v7 {
             Ok(ok) => ok,
             Err(v8) => {
                 return {
-                    let v9 = app::login_payload::invalid_credentials(&v8);
+                    let v9 = app::credentials::invalid_credentials(&v8);
                     let v10 = pavex::Error::new(v8);
                     app::telemetry::error_logger(&v10, v1).await;
                     <pavex::response::Response as pavex::response::IntoResponse>::into_response(

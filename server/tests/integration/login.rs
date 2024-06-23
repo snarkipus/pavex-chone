@@ -1,5 +1,5 @@
 use crate::helpers::TestApi;
-use app::login_payload::LoginPayload;
+use app::credentials::LoginPayload;
 use app::routes::login::{AuthResult, Message};
 use reqwest::header::SET_COOKIE;
 use reqwest::StatusCode;

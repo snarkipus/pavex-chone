@@ -18,8 +18,8 @@ pub fn blueprint() -> Blueprint {
     bp.request_scoped(f!(crate::user_agent::UserAgent::extract))
         .error_handler(f!(crate::user_agent::invalid_user_agent));
 
-    bp.request_scoped(f!(crate::login_payload::AuthStatus::extract))
-        .error_handler(f!(crate::login_payload::invalid_credentials));
+    bp.request_scoped(f!(crate::credentials::AuthStatus::extract))
+        .error_handler(f!(crate::credentials::invalid_credentials));
 
     routes::register(&mut bp);
     bp
