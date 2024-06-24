@@ -107,6 +107,7 @@ dependencies = [
  "pavex_tracing",
  "serde",
  "thiserror",
+ "tokio",
  "tracing",
  "workspace_hack",
 ]
@@ -1743,6 +1744,7 @@ dependencies = [
 name = "server_sdk"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "app",
  "biscotti",
  "http",

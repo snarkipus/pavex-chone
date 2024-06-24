@@ -19,6 +19,7 @@ cargo_px_env = "0.1"
 pavex = { version = "0.1.44" }
 pavex_tracing = { version = "0.1.44" }
 pavex_cli_client = { version = "0.1.44" }
+tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 serde = { version = "1", features = ["derive"] }
 workspace_hack = { path = "../workspace_hack" }
