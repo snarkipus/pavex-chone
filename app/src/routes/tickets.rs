@@ -1,4 +1,7 @@
-use pavex::{request::path::PathParams, response::{body::Json, Response}};
+use pavex::{
+    request::path::PathParams,
+    response::{body::Json, Response},
+};
 
 use crate::model::{ModelController, TicketForCreate};
 
@@ -26,7 +29,6 @@ pub async fn get(mc: &ModelController) -> Response {
         Err(_) => Response::internal_server_error().set_typed_body("Failed to list the tickets"),
     }
 }
-
 
 #[PathParams]
 pub struct TicketId {

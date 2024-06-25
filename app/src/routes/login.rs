@@ -32,9 +32,6 @@ pub async fn post(
             let json = Json::new(message).expect("Failed to serialize the response body");
             Response::ok().set_typed_body(json)
         }
-        AuthStatus::LoginFail => {
-            Response::unauthorized().set_typed_body("Invalid Credentials")
-        }
+        AuthStatus::LoginFail => Response::unauthorized().set_typed_body("Invalid Credentials"),
     }
 }
-

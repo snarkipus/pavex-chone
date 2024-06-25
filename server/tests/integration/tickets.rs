@@ -46,7 +46,10 @@ async fn create_tickets() {
 
         // Assert
         assert_eq!(response.status(), StatusCode::OK);
-        assert_eq!(response.json::<Ticket>().await.unwrap(), expected_tickets[i]);
+        assert_eq!(
+            response.json::<Ticket>().await.unwrap(),
+            expected_tickets[i]
+        );
     }
 }
 

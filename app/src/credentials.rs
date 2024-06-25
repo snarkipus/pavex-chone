@@ -66,4 +66,3 @@ pub fn invalid_credentials(e: &AuthError) -> Response {
         }
     }
 }
-
