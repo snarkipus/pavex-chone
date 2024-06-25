@@ -184,7 +184,7 @@ async fn route_request(
             match &request_head.method {
                 &pavex::http::Method::POST => {
                     route_3::entrypoint(
-                            server_state.application_state.s1.clone(),
+                            &server_state.application_state.s1,
                             request_body,
                             &server_state.application_state.s0,
                             matched_route_template,
@@ -723,48 +723,48 @@ pub mod route_2 {
     }
 }
 pub mod route_3 {
-    pub async fn entrypoint<'a, 'b>(
-        s_0: app::model::ModelController,
+    pub async fn entrypoint<'a, 'b, 'c>(
+        s_0: &'a app::model::ModelController,
         s_1: pavex::request::body::RawIncomingBody,
-        s_2: &'a biscotti::Processor,
+        s_2: &'b biscotti::Processor,
         s_3: pavex::request::path::MatchedPathPattern,
-        s_4: &'b pavex::request::RequestHead,
+        s_4: &'c pavex::request::RequestHead,
     ) -> pavex::response::Response {
         let response = wrapping_0(s_0, s_1, s_2, s_3, s_4).await;
         response
     }
-    async fn stage_1<'a, 'b>(
-        s_0: app::model::ModelController,
+    async fn stage_1<'a, 'b, 'c>(
+        s_0: &'a pavex::request::RequestHead,
         s_1: pavex::request::body::RawIncomingBody,
-        s_2: &'a pavex::request::RequestHead,
+        s_2: &'b app::model::ModelController,
         s_3: pavex::request::path::MatchedPathPattern,
-        s_4: &'b biscotti::Processor,
+        s_4: &'c biscotti::Processor,
     ) -> pavex::response::Response {
-        let response = wrapping_1(s_0, s_1, s_3, s_2).await;
+        let response = wrapping_1(s_2, s_1, s_3, s_0).await;
         let response = post_processing_0(response, s_4).await;
         response
     }
-    async fn stage_2<'a, 'b>(
-        s_0: app::model::ModelController,
-        s_1: &'a pavex_tracing::RootSpan,
+    async fn stage_2<'a, 'b, 'c>(
+        s_0: &'a pavex::request::RequestHead,
+        s_1: &'b pavex_tracing::RootSpan,
         s_2: pavex::request::body::RawIncomingBody,
-        s_3: &'b pavex::request::RequestHead,
+        s_3: &'c app::model::ModelController,
     ) -> pavex::response::Response {
         let response = handler(s_0, s_1, s_2, s_3).await;
         let response = post_processing_1(response, s_1).await;
         response
     }
     async fn wrapping_0(
-        v0: app::model::ModelController,
+        v0: &app::model::ModelController,
         v1: pavex::request::body::RawIncomingBody,
         v2: &biscotti::Processor,
         v3: pavex::request::path::MatchedPathPattern,
         v4: &pavex::request::RequestHead,
     ) -> pavex::response::Response {
         let v5 = crate::route_3::Next0 {
-            s_0: v0,
+            s_0: v4,
             s_1: v1,
-            s_2: v4,
+            s_2: v0,
             s_3: v3,
             s_4: v2,
             next: stage_1,
@@ -774,7 +774,7 @@ pub mod route_3 {
         <pavex::response::Response as pavex::response::IntoResponse>::into_response(v7)
     }
     async fn wrapping_1(
-        v0: app::model::ModelController,
+        v0: &app::model::ModelController,
         v1: pavex::request::body::RawIncomingBody,
         v2: pavex::request::path::MatchedPathPattern,
         v3: &pavex::request::RequestHead,
@@ -782,10 +782,10 @@ pub mod route_3 {
         let v4 = pavex::telemetry::ServerRequestId::generate();
         let v5 = app::telemetry::root_span(v3, v2, v4);
         let v6 = crate::route_3::Next1 {
-            s_0: v0,
+            s_0: v3,
             s_1: &v5,
             s_2: v1,
-            s_3: v3,
+            s_3: v0,
             next: stage_2,
         };
         let v7 = pavex::middleware::Next::new(v6);
@@ -815,13 +815,13 @@ pub mod route_3 {
         <pavex::response::Response as pavex::response::IntoResponse>::into_response(v4)
     }
     async fn handler(
-        v0: app::model::ModelController,
+        v0: &pavex::request::RequestHead,
         v1: &pavex_tracing::RootSpan,
         v2: pavex::request::body::RawIncomingBody,
-        v3: &pavex::request::RequestHead,
+        v3: &app::model::ModelController,
     ) -> pavex::response::Response {
         let v4 = <pavex::request::body::BodySizeLimit as std::default::Default>::default();
-        let v5 = pavex::request::body::BufferedBody::extract(v3, v2, v4).await;
+        let v5 = pavex::request::body::BufferedBody::extract(v0, v2, v4).await;
         let v6 = match v5 {
             Ok(ok) => ok,
             Err(v6) => {
@@ -837,7 +837,7 @@ pub mod route_3 {
                 };
             }
         };
-        let v7 = app::model::TicketForCreate::extract(v3, &v6);
+        let v7 = app::model::TicketForCreate::extract(v0, &v6);
         let v8 = match v7 {
             Ok(ok) => ok,
             Err(v8) => {
@@ -851,7 +851,7 @@ pub mod route_3 {
                 };
             }
         };
-        let v9 = app::routes::tickets::post(v0, v8).await;
+        let v9 = app::routes::tickets::post(v3, v8).await;
         <pavex::response::Response as pavex::response::IntoResponse>::into_response(v9)
     }
     async fn post_processing_1(
@@ -861,24 +861,24 @@ pub mod route_3 {
         let v2 = app::telemetry::response_logger(v0, v1).await;
         <pavex::response::Response as pavex::response::IntoResponse>::into_response(v2)
     }
-    struct Next0<'a, 'b, T>
+    struct Next0<'a, 'b, 'c, T>
     where
         T: std::future::Future<Output = pavex::response::Response>,
     {
-        s_0: app::model::ModelController,
+        s_0: &'a pavex::request::RequestHead,
         s_1: pavex::request::body::RawIncomingBody,
-        s_2: &'a pavex::request::RequestHead,
+        s_2: &'b app::model::ModelController,
         s_3: pavex::request::path::MatchedPathPattern,
-        s_4: &'b biscotti::Processor,
+        s_4: &'c biscotti::Processor,
         next: fn(
-            app::model::ModelController,
-            pavex::request::body::RawIncomingBody,
             &'a pavex::request::RequestHead,
+            pavex::request::body::RawIncomingBody,
+            &'b app::model::ModelController,
             pavex::request::path::MatchedPathPattern,
-            &'b biscotti::Processor,
+            &'c biscotti::Processor,
         ) -> T,
     }
-    impl<'a, 'b, T> std::future::IntoFuture for Next0<'a, 'b, T>
+    impl<'a, 'b, 'c, T> std::future::IntoFuture for Next0<'a, 'b, 'c, T>
     where
         T: std::future::Future<Output = pavex::response::Response>,
     {
@@ -888,22 +888,22 @@ pub mod route_3 {
             (self.next)(self.s_0, self.s_1, self.s_2, self.s_3, self.s_4)
         }
     }
-    struct Next1<'a, 'b, T>
+    struct Next1<'a, 'b, 'c, T>
     where
         T: std::future::Future<Output = pavex::response::Response>,
     {
-        s_0: app::model::ModelController,
-        s_1: &'a pavex_tracing::RootSpan,
+        s_0: &'a pavex::request::RequestHead,
+        s_1: &'b pavex_tracing::RootSpan,
         s_2: pavex::request::body::RawIncomingBody,
-        s_3: &'b pavex::request::RequestHead,
+        s_3: &'c app::model::ModelController,
         next: fn(
-            app::model::ModelController,
-            &'a pavex_tracing::RootSpan,
+            &'a pavex::request::RequestHead,
+            &'b pavex_tracing::RootSpan,
             pavex::request::body::RawIncomingBody,
-            &'b pavex::request::RequestHead,
+            &'c app::model::ModelController,
         ) -> T,
     }
-    impl<'a, 'b, T> std::future::IntoFuture for Next1<'a, 'b, T>
+    impl<'a, 'b, 'c, T> std::future::IntoFuture for Next1<'a, 'b, 'c, T>
     where
         T: std::future::Future<Output = pavex::response::Response>,
     {

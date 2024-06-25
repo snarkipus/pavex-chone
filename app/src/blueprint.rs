@@ -23,8 +23,7 @@ pub fn blueprint() -> Blueprint {
         .error_handler(f!(crate::credentials::invalid_credentials));
 
     // FIXME: This is causing issues
-    bp.singleton(f!(crate::model::ModelController::new))
-        .cloning(CloningStrategy::CloneIfNecessary);
+    bp.singleton(f!(crate::model::ModelController::new));
 
     bp.request_scoped(f!(crate::model::TicketForCreate::extract))
         .error_handler(f!(crate::model::invalid_ticket));
