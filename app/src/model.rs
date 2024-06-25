@@ -29,13 +29,13 @@ pub fn invalid_ticket(e: &TicketError) -> Response {
 }
 
 // region:    -- Ticket Types --
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Ticket {
     pub id: u64,
     pub title: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct TicketForCreate {
     pub title: String,
 }
