@@ -1,4 +1,3 @@
-use anyhow::Result;
 use pavex::request::body::errors::ExtractJsonBodyError;
 use pavex::request::body::{BufferedBody, JsonBody};
 use pavex::request::RequestHead;
@@ -59,10 +58,10 @@ pub struct ModelController {
 
 // Constructor
 impl ModelController {
-    pub async fn new() -> Result<Self> {
-        Ok(Self {
+    pub async fn new() -> Self {
+        Self {
             tickets_store: Arc::default(),
-        })
+        }
     }
 }
 
@@ -81,7 +80,7 @@ impl ModelController {
         Ok(ticket)
     }
 
-    pub async fn list_tickets(&self) -> Result<Vec<Ticket>> {
+    pub async fn list_tickets(&self) -> Result<Vec<Ticket>, TicketError> {
         let store = self.tickets_store.lock().await;
         let tickets = store.iter().filter_map(|t| t.clone()).collect();
         Ok(tickets)

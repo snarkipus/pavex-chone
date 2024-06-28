@@ -1,11 +1,68 @@
+use std::sync::Arc;
+
 use crate::helpers::TestApi;
 use app::model::{Ticket, TicketForCreate};
-use reqwest::StatusCode;
+use reqwest::{cookie::Jar, StatusCode, Url};
+
+#[tokio::test]
+async fn rejects_missing_auth_token() {
+    // Arrange
+    let api = TestApi::spawn().await;
+
+    // Act & Assert
+    let response = api
+        .api_client
+        .get(&format!("{}/web/tickets", &api.api_address))
+        .send()
+        .await
+        .expect("Failed to execute request");
+
+    // Assert
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    assert_eq!(response.text().await.unwrap(), "Unauthorized Bitch");
+}
+
+#[tokio::test]
+async fn rejects_bad_auth_token() {
+    // Arrange
+    let api = TestApi::spawn().await;
+
+    let cookie_jar = Arc::new(Jar::default());
+    let cookie = "auth-token=badtoken";
+    let url = Url::parse(&api.api_address).expect("Invalid URL");
+    cookie_jar.add_cookie_str(cookie, &url);
+
+    let client = reqwest::Client::builder()
+        .cookie_provider(cookie_jar.clone())
+        .build()
+        .expect("Failed to create reqwest client");
+
+    // Act & Assert
+    let response = client
+        .get(&format!("{}/web/tickets", &api.api_address))
+        .send()
+        .await
+        .expect("Failed to execute request");
+
+    // Assert
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    assert_eq!(response.text().await.unwrap(), "Unauthorized Basic Bitch");
+}
 
 #[tokio::test]
 async fn create_tickets() {
     // Arrange
     let api = TestApi::spawn().await;
+
+    let cookie_jar = Arc::new(Jar::default());
+    let cookie = "auth-token=user-1.exp.sign";
+    let url = Url::parse(&api.api_address).expect("Invalid URL");
+    cookie_jar.add_cookie_str(cookie, &url);
+
+    let client = reqwest::Client::builder()
+        .cookie_provider(cookie_jar.clone())
+        .build()
+        .expect("Failed to create reqwest client");
 
     let ticket_requests = [
         TicketForCreate {
@@ -36,8 +93,7 @@ async fn create_tickets() {
 
     // Act & Assert
     for (i, request) in ticket_requests.iter().enumerate() {
-        let response = api
-            .api_client
+        let response = client
             .post(&format!("{}/web/tickets", &api.api_address))
             .json(request)
             .send()
@@ -58,6 +114,16 @@ async fn list_tickets() {
     // Arrange
     let api = TestApi::spawn().await;
 
+    let cookie_jar = Arc::new(Jar::default());
+    let cookie = "auth-token=user-1.exp.sign";
+    let url = Url::parse(&api.api_address).expect("Invalid URL");
+    cookie_jar.add_cookie_str(cookie, &url);
+
+    let client = reqwest::Client::builder()
+        .cookie_provider(cookie_jar.clone())
+        .build()
+        .expect("Failed to create reqwest client");
+
     let ticket_requests = [
         TicketForCreate {
             title: "Ticket 1".to_string(),
@@ -71,7 +137,7 @@ async fn list_tickets() {
     ];
 
     for request in &ticket_requests {
-        api.api_client
+        client
             .post(&format!("{}/web/tickets", &api.api_address))
             .json(request)
             .send()
@@ -80,8 +146,7 @@ async fn list_tickets() {
     }
 
     // Act
-    let response = api
-        .api_client
+    let response = client
         .get(&format!("{}/web/tickets", &api.api_address))
         .send()
         .await
@@ -98,6 +163,16 @@ async fn delete_tickets() {
     // Arrange
     let api = TestApi::spawn().await;
 
+    let cookie_jar = Arc::new(Jar::default());
+    let cookie = "auth-token=user-1.exp.sign";
+    let url = Url::parse(&api.api_address).expect("Invalid URL");
+    cookie_jar.add_cookie_str(cookie, &url);
+
+    let client = reqwest::Client::builder()
+        .cookie_provider(cookie_jar.clone())
+        .build()
+        .expect("Failed to create reqwest client");
+
     let ticket_requests = [
         TicketForCreate {
             title: "Ticket 1".to_string(),
@@ -111,7 +186,7 @@ async fn delete_tickets() {
     ];
 
     for request in &ticket_requests {
-        api.api_client
+        client
             .post(&format!("{}/web/tickets", &api.api_address))
             .json(request)
             .send()
@@ -120,8 +195,7 @@ async fn delete_tickets() {
     }
 
     // Act
-    let response = api
-        .api_client
+    let response = client
         .delete(&format!("{}/web/tickets/{}", &api.api_address, 1))
         .send()
         .await

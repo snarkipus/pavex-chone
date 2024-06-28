@@ -27,7 +27,7 @@ impl TestApi {
             .expect("The server TCP listener doesn't have a local socket address");
         let server_builder = Server::new().listen(tcp_listener);
 
-        tokio::spawn(async move { run(server_builder, application_state.expect("BOOM!")).await });
+        tokio::spawn(async move { run(server_builder, application_state).await });
 
         TestApi {
             api_address: format!("http://{}:{}", config.server.ip, address.port()),

@@ -105,6 +105,7 @@ dependencies = [
  "pavex",
  "pavex_cli_client",
  "pavex_tracing",
+ "regex",
  "serde",
  "thiserror",
  "tokio",
@@ -1656,6 +1657,7 @@ dependencies = [
  "humantime-serde",
  "pavex",
  "pavex_tracing",
+ "regex",
  "reqwest",
  "serde",
  "serde-aux",
@@ -1673,7 +1675,6 @@ dependencies = [
 name = "server_sdk"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "app",
  "biscotti",
  "http",

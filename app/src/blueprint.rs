@@ -1,3 +1,4 @@
+use crate::routes::web::tickets_bp;
 use crate::{configuration, routes, telemetry};
 use pavex::blueprint::Blueprint;
 use pavex::cookie::CookieKit;
@@ -27,5 +28,6 @@ pub fn blueprint() -> Blueprint {
         .error_handler(f!(crate::model::invalid_ticket));
 
     routes::register(&mut bp);
+    bp.nest_at("/web", tickets_bp());
     bp
 }

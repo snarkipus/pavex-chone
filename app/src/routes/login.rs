@@ -4,6 +4,8 @@ use pavex::request::body::JsonBody;
 use pavex::response::body::Json;
 use pavex::response::Response;
 
+use super::web::AUTH_TOKEN;
+
 #[derive(Debug, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct Message {
     pub result: AuthResult,
@@ -22,7 +24,7 @@ pub async fn post(
     match auth_status {
         AuthStatus::Success => {
             // Set a cookie to indicate that the user is authenticated.
-            let cookie = ResponseCookie::new("auth-token", "user-1.exp.sign");
+            let cookie = ResponseCookie::new(AUTH_TOKEN, "user-1.exp.sign");
             response_cookies.insert(cookie);
 
             let message = Message {

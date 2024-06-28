@@ -25,3 +25,4 @@ serde = { version = "1", features = ["derive"] }
 workspace_hack = { version = "0.1", path = "../workspace_hack" }
 anyhow = "1"
 thiserror = "1"
+regex = "1.10.5"

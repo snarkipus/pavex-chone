@@ -16,7 +16,6 @@ verifier_args = ["--check"]
 clippy = { all = "allow" }
 
 [dependencies]
-anyhow = "1.0.86"
 app = { version = "0.1.0", path = "../app" }
 biscotti = "0.3.4"
 http = "1.1.0"
