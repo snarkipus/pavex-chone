@@ -16,14 +16,29 @@ pub enum AuthError {
     AuthFailTokenWrongFormat,
 }
 
+#[tracing::instrument(
+    name = "mw_require_auth",
+    skip(request_cookies),
+    fields(
+        auth_status = tracing::field::Empty,
+        error = tracing::field::Empty,
+    )
+)]
 pub async fn mw_require_auth(request_cookies: RequestCookies<'_>) -> Result<Processing, AuthError> {
     let Some(_auth_token) = request_cookies.get(AUTH_TOKEN) else {
+        tracing::Span::current().record("auth_status", "fail");
+        tracing::Span::current().record("error", "AuthFailNoAuthTokenCookie");
         return Err(AuthError::AuthFailNoAuthTokenCookie);
     };
 
-    let (_user_id, _exp, _sign) = parse_token(_auth_token)?;
+    let (_user_id, _exp, _sign) = parse_token(_auth_token).map_err(|e| {
+        tracing::Span::current().record("error", e.to_string());
+        e
+    })?;
 
     // TODO: Validate the token.
+
+    tracing::Span::current().record("auth_status", "success");
     Ok(Processing::Continue)
 }
 

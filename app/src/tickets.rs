@@ -36,18 +36,29 @@ pub struct Ticket {
     pub title: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TicketForCreate {
     pub title: String,
 }
 
 impl TicketForCreate {
+    #[tracing::instrument(
+        name = "extract ticket for creation",
+        skip(request_head, buffered_body),
+        fields(
+            ticket_title = tracing::field::Empty,
+            error = tracing::field::Empty,
+        )
+    )]
     pub fn extract(request_head: &RequestHead, buffered_body: &BufferedBody) -> TicketResult<Self> {
-        let ticket_fc = JsonBody::<TicketForCreate>::extract(request_head, buffered_body)
-            .map_err(TicketError::ExtractJsonBody)?;
+        let ticket_fc =
+            JsonBody::<TicketForCreate>::extract(request_head, buffered_body).map_err(|e| {
+                tracing::Span::current().record("error", e.to_string());
+                TicketError::ExtractJsonBody(e)
+            })?;
 
+        tracing::Span::current().record("ticket_title", &ticket_fc.0.title);
         Ok(ticket_fc.0)
     }
 }
-
 // endregion: -- Ticket Types --

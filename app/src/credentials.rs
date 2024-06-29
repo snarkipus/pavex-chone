@@ -30,18 +30,31 @@ pub enum AuthError {
 
 impl AuthStatus {
     /// Extracts and authenticates the login payload from the request.
+    #[tracing::instrument(
+        name = "extract credentials",
+        skip(request_head, buffered_body),
+        fields(
+            auth_status = tracing::field::Empty,
+            error = tracing::field::Empty,
+        )
+    )]
     pub async fn extract(
         request_head: &RequestHead,
         buffered_body: &BufferedBody,
     ) -> Result<Self, AuthError> {
         // Attempt to extract the JSON payload from the request body.
-        let credentials = JsonBody::<LoginPayload>::extract(request_head, buffered_body)
-            .map_err(AuthError::ExtractJsonBody)?;
+        let credentials =
+            JsonBody::<LoginPayload>::extract(request_head, buffered_body).map_err(|e| {
+                tracing::Span::current().record("error", e.to_string());
+                AuthError::ExtractJsonBody(e)
+            })?;
 
         // If the credentials are valid JSON, check the authentication and return the result status.
         if authenticate(credentials).await.is_ok() {
+            tracing::Span::current().record("auth_status", "success");
             Ok(AuthStatus::Success)
         } else {
+            tracing::Span::current().record("auth_status", "fail");
             Ok(AuthStatus::LoginFail)
         }
     }

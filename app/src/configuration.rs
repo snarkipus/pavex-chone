@@ -25,7 +25,6 @@ pub struct ModelController {
     pub tickets_store: Arc<Mutex<Vec<Option<Ticket>>>>,
 }
 
-// Deserialize
 // NOTE: This doesn't seem to be a grown up way to do this - assuming the AppConfig would just contain
 //       the interface to the database and wouldn't attempt to deserialize the actual database
 impl<'de> Deserialize<'de> for ModelController {
@@ -50,6 +49,14 @@ impl ModelController {
 
 // CRUD Implementation
 impl ModelController {
+    #[tracing::instrument(
+        name = "create ticket",
+        skip(self, ticket_fc),
+        fields(
+            ticket_id = tracing::field::Empty,
+            ticket_title = tracing::field::Empty,
+        )
+    )]
     pub async fn create_ticket(&self, ticket_fc: TicketForCreate) -> TicketResult<Ticket> {
         let mut store = self.tickets_store.lock().await;
 
@@ -60,19 +67,33 @@ impl ModelController {
         };
         store.push(Some(ticket.clone()));
 
+        tracing::Span::current().record("ticket_id", ticket.id);
+        tracing::Span::current().record("ticket_title", &ticket.title);
         Ok(ticket)
     }
 
+    #[tracing::instrument(name = "list tickets", skip(self))]
     pub async fn list_tickets(&self) -> Result<Vec<Ticket>, TicketError> {
         let store = self.tickets_store.lock().await;
         let tickets = store.iter().filter_map(|t| t.clone()).collect();
         Ok(tickets)
     }
 
+    #[tracing::instrument(
+        name = "delete ticket",
+        skip(self, id),
+        fields(
+            ticket_id = id,
+            error = tracing::field::Empty,
+        )
+    )]
     pub async fn delete_ticket(&self, id: u64) -> Result<Ticket, TicketError> {
         let mut store = self.tickets_store.lock().await;
         let ticket = store.get_mut(id as usize).and_then(|t| t.take());
-        ticket.ok_or(TicketError::NotFound { id })
+        ticket.ok_or({
+            tracing::Span::current().record("Ticket {} not found error", id);
+            TicketError::NotFound { id }
+        })
     }
 }
 // endregion: -- Model Controller --
