@@ -1,8 +1,7 @@
-use std::sync::Arc;
-
 use crate::helpers::TestApi;
-use app::model::{Ticket, TicketForCreate};
+use app::tickets::{Ticket, TicketForCreate};
 use reqwest::{cookie::Jar, StatusCode, Url};
+use std::sync::Arc;
 
 #[tokio::test]
 async fn rejects_missing_auth_token() {

@@ -24,7 +24,6 @@ pub async fn mw_require_auth(request_cookies: RequestCookies<'_>) -> Result<Proc
     let (_user_id, _exp, _sign) = parse_token(_auth_token)?;
 
     // TODO: Validate the token.
-
     Ok(Processing::Continue)
 }
 
