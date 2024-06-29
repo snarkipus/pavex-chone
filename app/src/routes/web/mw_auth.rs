@@ -6,6 +6,8 @@ use pavex::{
 use regex::Regex;
 use thiserror::Error;
 
+use crate::ctx::Ctx;
+
 use super::AUTH_TOKEN;
 
 #[derive(Debug, Error)]
@@ -24,19 +26,21 @@ pub enum AuthError {
         error = tracing::field::Empty,
     )
 )]
-pub async fn mw_require_auth(request_cookies: RequestCookies<'_>) -> Result<Processing, AuthError> {
+pub async fn mw_require_auth(request_cookies: RequestCookies<'_>, ctx: &mut Ctx) -> Result<Processing, AuthError> {
     let Some(_auth_token) = request_cookies.get(AUTH_TOKEN) else {
         tracing::Span::current().record("auth_status", "fail");
         tracing::Span::current().record("error", "AuthFailNoAuthTokenCookie");
         return Err(AuthError::AuthFailNoAuthTokenCookie);
     };
 
-    let (_user_id, _exp, _sign) = parse_token(_auth_token).map_err(|e| {
+    let (user_id, _exp, _sign) = parse_token(_auth_token).map_err(|e| {
         tracing::Span::current().record("error", e.to_string());
         e
     })?;
 
     // TODO: Validate the token.
+
+    ctx.set(user_id);
 
     tracing::Span::current().record("auth_status", "success");
     Ok(Processing::Continue)

@@ -16,7 +16,8 @@ pub fn tickets_bp() -> Blueprint {
 
     bp.request_scoped(f!(crate::tickets::TicketForCreate::extract))
         .error_handler(f!(crate::tickets::invalid_ticket));
-    // bp.request_scoped(f!(crate::ctx::Ctx::new));
+    
+    bp.request_scoped(f!(crate::ctx::Ctx::new));
 
     bp.pre_process(f!(super::web::mw_auth::mw_require_auth))
         .error_handler(f!(super::web::mw_auth::mw_auth_error));

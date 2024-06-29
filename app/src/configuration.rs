@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::tickets::{Ticket, TicketError, TicketForCreate, TicketResult};
+use crate::{ctx::Ctx, tickets::{Ticket, TicketError, TicketForCreate, TicketResult}};
 
 #[derive(serde::Deserialize, Debug, Clone)]
 /// The configuration object holding all the values required
@@ -73,7 +73,7 @@ impl ModelController {
     }
 
     #[tracing::instrument(name = "list tickets", skip(self))]
-    pub async fn list_tickets(&self) -> Result<Vec<Ticket>, TicketError> {
+    pub async fn list_tickets(&self, _ctx: Ctx) -> Result<Vec<Ticket>, TicketError> {
         let store = self.tickets_store.lock().await;
         let tickets = store.iter().filter_map(|t| t.clone()).collect();
         Ok(tickets)

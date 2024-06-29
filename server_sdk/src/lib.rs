@@ -1000,20 +1000,21 @@ pub mod route_4 {
                 };
             }
         };
-        let v4 = app::routes::web::mw_auth::mw_require_auth(v3).await;
-        let v5 = match v4 {
+        let mut v4 = app::ctx::Ctx::new();
+        let v5 = app::routes::web::mw_auth::mw_require_auth(v3, &mut v4).await;
+        let v6 = match v5 {
             Ok(ok) => ok,
-            Err(v5) => {
+            Err(v6) => {
                 return {
-                    let v6 = app::routes::web::mw_auth::mw_auth_error(&v5).await;
-                    let v7 = <pavex::response::Response as pavex::response::IntoResponse>::into_response(
-                        v6,
+                    let v7 = app::routes::web::mw_auth::mw_auth_error(&v6).await;
+                    let v8 = <pavex::response::Response as pavex::response::IntoResponse>::into_response(
+                        v7,
                     );
-                    pavex::middleware::Processing::EarlyReturn(v7)
+                    pavex::middleware::Processing::EarlyReturn(v8)
                 };
             }
         };
-        v5
+        v6
     }
     async fn handler(
         v0: &pavex::request::RequestHead,
@@ -1227,20 +1228,21 @@ pub mod route_5 {
                 };
             }
         };
-        let v4 = app::routes::web::mw_auth::mw_require_auth(v3).await;
-        let v5 = match v4 {
+        let mut v4 = app::ctx::Ctx::new();
+        let v5 = app::routes::web::mw_auth::mw_require_auth(v3, &mut v4).await;
+        let v6 = match v5 {
             Ok(ok) => ok,
-            Err(v5) => {
+            Err(v6) => {
                 return {
-                    let v6 = app::routes::web::mw_auth::mw_auth_error(&v5).await;
-                    let v7 = <pavex::response::Response as pavex::response::IntoResponse>::into_response(
-                        v6,
+                    let v7 = app::routes::web::mw_auth::mw_auth_error(&v6).await;
+                    let v8 = <pavex::response::Response as pavex::response::IntoResponse>::into_response(
+                        v7,
                     );
-                    pavex::middleware::Processing::EarlyReturn(v7)
+                    pavex::middleware::Processing::EarlyReturn(v8)
                 };
             }
         };
-        v5
+        v6
     }
     async fn handler(
         v0: &app::configuration::ModelController,
@@ -1423,20 +1425,21 @@ pub mod route_6 {
                 };
             }
         };
-        let v4 = app::routes::web::mw_auth::mw_require_auth(v3).await;
-        let v5 = match v4 {
+        let mut v4 = app::ctx::Ctx::new();
+        let v5 = app::routes::web::mw_auth::mw_require_auth(v3, &mut v4).await;
+        let v6 = match v5 {
             Ok(ok) => ok,
-            Err(v5) => {
+            Err(v6) => {
                 return {
-                    let v6 = app::routes::web::mw_auth::mw_auth_error(&v5).await;
-                    let v7 = <pavex::response::Response as pavex::response::IntoResponse>::into_response(
-                        v6,
+                    let v7 = app::routes::web::mw_auth::mw_auth_error(&v6).await;
+                    let v8 = <pavex::response::Response as pavex::response::IntoResponse>::into_response(
+                        v7,
                     );
-                    pavex::middleware::Processing::EarlyReturn(v7)
+                    pavex::middleware::Processing::EarlyReturn(v8)
                 };
             }
         };
-        v5
+        v6
     }
     async fn handler(
         v0: &pavex_tracing::RootSpan,

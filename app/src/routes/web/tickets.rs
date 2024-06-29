@@ -3,7 +3,7 @@ use pavex::{
     response::{body::Json, Response},
 };
 
-use crate::configuration::ModelController;
+use crate::{configuration::ModelController, ctx::Ctx};
 use crate::tickets::TicketForCreate;
 
 // region:    -- REST Handlers --
@@ -19,8 +19,8 @@ pub async fn post(mc: &ModelController, ticket_fc: TicketForCreate) -> Response 
     }
 }
 
-pub async fn get(mc: &ModelController) -> Response {
-    let tickets = mc.list_tickets().await;
+pub async fn get(mc: &ModelController, ctx: Ctx) -> Response {
+    let tickets = mc.list_tickets(ctx).await;
 
     match tickets {
         Ok(tickets) => {
