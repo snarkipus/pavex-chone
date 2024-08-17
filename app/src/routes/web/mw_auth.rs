@@ -33,9 +33,8 @@ pub async fn mw_require_auth(request_cookies: RequestCookies<'_>, ctx: &mut Ctx)
         return Err(AuthError::AuthFailNoAuthTokenCookie);
     };
 
-    let (user_id, _exp, _sign) = parse_token(_auth_token).map_err(|e| {
+    let (user_id, _exp, _sign) = parse_token(_auth_token).inspect_err(|e| {
         tracing::Span::current().record("error", e.to_string());
-        e
     })?;
 
     // TODO: Validate the token.

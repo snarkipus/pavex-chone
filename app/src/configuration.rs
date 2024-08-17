@@ -3,7 +3,11 @@ use serde::Deserialize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::{ctx::Ctx, tickets::{Ticket, TicketError, TicketForCreate, TicketResult}};
+#[allow(unused_imports)]
+use crate::{
+    ctx::Ctx,
+    tickets::{Ticket, TicketError, TicketForCreate, TicketResult},
+};
 
 #[derive(serde::Deserialize, Debug, Clone)]
 /// The configuration object holding all the values required
