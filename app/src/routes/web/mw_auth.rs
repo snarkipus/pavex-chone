@@ -1,5 +1,6 @@
+#[allow(unused_imports)]
 use pavex::{
-    cookie::{RequestCookie, RequestCookies},
+    cookie::{RemovalCookie, RequestCookie, RequestCookies, ResponseCookies},
     middleware::Processing,
     response::Response,
 };
@@ -29,6 +30,7 @@ pub enum AuthError {
 pub async fn mw_require_auth(
     request_cookies: RequestCookies<'_>,
     ctx: &mut Ctx,
+    _response_cookies: &mut ResponseCookies,
 ) -> Result<Processing, AuthError> {
     let Some(auth_token) = request_cookies.get(AUTH_TOKEN) else {
         tracing::Span::current().record("auth_status", "fail");
@@ -36,17 +38,19 @@ pub async fn mw_require_auth(
         return Err(AuthError::AuthFailNoAuthTokenCookie);
     };
 
-    let (user_id, _exp, _sign) = parse_token(auth_token).inspect_err(|e| {
-        tracing::Span::current().record("auth_status", "fail");
-        tracing::Span::current().record("error", e.to_string());
-    })?;
-
-    // TODO: Validate the token.
-
-    ctx.set(user_id);
-
-    tracing::Span::current().record("auth_status", "success");
-    Ok(Processing::Continue)
+    match parse_token(auth_token) {
+        Ok((user_id, _exp, _sign)) => {
+            // TODO: Validate the token (expensive ops)
+            ctx.set(user_id);
+            tracing::Span::current().record("auth_status", "success");
+            Ok(Processing::Continue)
+        }
+        Err(e) => {
+            tracing::Span::current().record("auth_status", "fail");
+            tracing::Span::current().record("error", e.to_string());
+            Err(e)
+        }
+    }
 }
 
 #[tracing::instrument(
@@ -79,12 +83,14 @@ pub fn parse_token(auth_token: RequestCookie) -> Result<(u64, String, String), A
     }
 }
 
+// pub async fn mw_auth_error(e: &AuthError, res_cookies: &mut ResponseCookies) -> Response {
 pub async fn mw_auth_error(e: &AuthError) -> Response {
     match e {
         AuthError::AuthFailNoAuthTokenCookie => {
             Response::unauthorized().set_typed_body("Unauthorized Bitch")
         }
         AuthError::AuthFailTokenWrongFormat => {
+            // res_cookies.insert(RemovalCookie::new(AUTH_TOKEN));
             Response::unauthorized().set_typed_body("Unauthorized Basic Bitch")
         }
     }
