@@ -9,7 +9,7 @@ async fn greet_happy_path() {
 
     let response = api
         .api_client
-        .get(&format!("{}/api/greet/{name}", &api.api_address))
+        .get(format!("{}/api/greet/{name}", &api.api_address))
         .header("User-Agent", "Test runner")
         .send()
         .await
@@ -26,7 +26,7 @@ async fn non_utf8_user_agent_is_rejected() {
 
     let response = api
         .api_client
-        .get(&format!("{}/api/greet/{name}", &api.api_address))
+        .get(format!("{}/api/greet/{name}", &api.api_address))
         .header("User-Agent", b"hello\xfa".as_slice())
         .send()
         .await
@@ -46,7 +46,7 @@ async fn missing_user_agent_is_rejected() {
 
     let response = api
         .api_client
-        .get(&format!("{}/api/greet/{name}", &api.api_address))
+        .get(format!("{}/api/greet/{name}", &api.api_address))
         .send()
         .await
         .expect("Failed to execute request");

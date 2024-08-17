@@ -16,7 +16,7 @@ async fn authorize_valid_credentials() {
 
     let response = api
         .api_client
-        .post(&format!("{}/web/login", &api.api_address))
+        .post(format!("{}/web/login", &api.api_address))
         .json(&credentials)
         .send()
         .await
@@ -47,7 +47,7 @@ async fn reject_invalid_credentials() {
 
     let response = api
         .api_client
-        .post(&format!("{}/web/login", &api.api_address))
+        .post(format!("{}/web/login", &api.api_address))
         .json(&credentials)
         .send()
         .await
@@ -66,7 +66,7 @@ async fn reject_missing_credentials() {
 
     let response = api
         .api_client
-        .post(&format!("{}/web/login", &api.api_address))
+        .post(format!("{}/web/login", &api.api_address))
         .json(&bad_body)
         .send()
         .await

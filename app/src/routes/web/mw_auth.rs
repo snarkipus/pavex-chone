@@ -26,7 +26,10 @@ pub enum AuthError {
         error = tracing::field::Empty,
     )
 )]
-pub async fn mw_require_auth(request_cookies: RequestCookies<'_>, ctx: &mut Ctx) -> Result<Processing, AuthError> {
+pub async fn mw_require_auth(
+    request_cookies: RequestCookies<'_>,
+    ctx: &mut Ctx,
+) -> Result<Processing, AuthError> {
     let Some(_auth_token) = request_cookies.get(AUTH_TOKEN) else {
         tracing::Span::current().record("auth_status", "fail");
         tracing::Span::current().record("error", "AuthFailNoAuthTokenCookie");

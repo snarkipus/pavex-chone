@@ -11,7 +11,7 @@ async fn rejects_missing_auth_token() {
     // Act & Assert
     let response = api
         .api_client
-        .get(&format!("{}/web/tickets", &api.api_address))
+        .get(format!("{}/web/tickets", &api.api_address))
         .send()
         .await
         .expect("Failed to execute request");
@@ -38,7 +38,7 @@ async fn rejects_bad_auth_token() {
 
     // Act & Assert
     let response = client
-        .get(&format!("{}/web/tickets", &api.api_address))
+        .get(format!("{}/web/tickets", &api.api_address))
         .send()
         .await
         .expect("Failed to execute request");
@@ -93,7 +93,7 @@ async fn create_tickets() {
     // Act & Assert
     for (i, request) in ticket_requests.iter().enumerate() {
         let response = client
-            .post(&format!("{}/web/tickets", &api.api_address))
+            .post(format!("{}/web/tickets", &api.api_address))
             .json(request)
             .send()
             .await
@@ -137,7 +137,7 @@ async fn list_tickets() {
 
     for request in &ticket_requests {
         client
-            .post(&format!("{}/web/tickets", &api.api_address))
+            .post(format!("{}/web/tickets", &api.api_address))
             .json(request)
             .send()
             .await
@@ -146,7 +146,7 @@ async fn list_tickets() {
 
     // Act
     let response = client
-        .get(&format!("{}/web/tickets", &api.api_address))
+        .get(format!("{}/web/tickets", &api.api_address))
         .send()
         .await
         .expect("Failed to execute request");
@@ -186,7 +186,7 @@ async fn delete_tickets() {
 
     for request in &ticket_requests {
         client
-            .post(&format!("{}/web/tickets", &api.api_address))
+            .post(format!("{}/web/tickets", &api.api_address))
             .json(request)
             .send()
             .await
@@ -195,7 +195,7 @@ async fn delete_tickets() {
 
     // Act
     let response = client
-        .delete(&format!("{}/web/tickets/{}", &api.api_address, 1))
+        .delete(format!("{}/web/tickets/{}", &api.api_address, 1))
         .send()
         .await
         .expect("Failed to execute request");

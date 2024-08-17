@@ -70,7 +70,7 @@ impl TestApi {
 impl TestApi {
     pub async fn get_ping(&self) -> reqwest::Response {
         self.api_client
-            .get(&format!("{}/api/ping", &self.api_address))
+            .get(format!("{}/api/ping", &self.api_address))
             .send()
             .await
             .expect("Failed to execute request.")
