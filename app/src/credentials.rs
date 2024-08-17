@@ -45,6 +45,7 @@ impl AuthStatus {
         // Attempt to extract the JSON payload from the request body.
         let credentials =
             JsonBody::<LoginPayload>::extract(request_head, buffered_body).map_err(|e| {
+                tracing::Span::current().record("auth_status", "fail");
                 tracing::Span::current().record("error", e.to_string());
                 AuthError::ExtractJsonBody(e)
             })?;
@@ -60,11 +61,22 @@ impl AuthStatus {
     }
 }
 
+#[tracing::instrument(
+    name = "authenticate credentials",
+    skip(credentials),
+    fields(
+        auth_status = tracing::field::Empty,
+        error = tracing::field::Empty,
+    )
+)]
 async fn authenticate(credentials: JsonBody<LoginPayload>) -> Result<(), AuthError> {
     // Check the credentials against a database or some other authentication mechanism.
     if credentials.0.username == "Luca" && credentials.0.pwd == "1234" {
+        tracing::Span::current().record("auth_status", "success");
         Ok(())
     } else {
+        tracing::Span::current().record("auth_status", "fail");
+        tracing::Span::current().record("error", "Invalid Credentials");
         Err(AuthError::AuthenticationFailed)
     }
 }

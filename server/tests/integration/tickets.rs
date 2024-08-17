@@ -78,14 +78,17 @@ async fn create_tickets() {
     let expected_tickets = [
         Ticket {
             id: 0,
+            cid: 1,
             title: "Ticket 1".to_string(),
         },
         Ticket {
             id: 1,
+            cid: 1,
             title: "Ticket 2".to_string(),
         },
         Ticket {
             id: 2,
+            cid: 1,
             title: "Ticket 3".to_string(),
         },
     ];

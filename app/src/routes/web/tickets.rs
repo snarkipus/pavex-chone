@@ -7,8 +7,8 @@ use crate::tickets::TicketForCreate;
 use crate::{configuration::ModelController, ctx::Ctx};
 
 // region:    -- REST Handlers --
-pub async fn post(mc: &ModelController, ticket_fc: TicketForCreate) -> Response {
-    let ticket = mc.create_ticket(ticket_fc).await;
+pub async fn post(mc: &ModelController, ctx: Ctx, ticket_fc: TicketForCreate) -> Response {
+    let ticket = mc.create_ticket(ctx, ticket_fc).await;
 
     match ticket {
         Ok(ticket) => {
@@ -36,8 +36,8 @@ pub struct TicketId {
     pub id: u64,
 }
 
-pub async fn delete(mc: &ModelController, id: PathParams<TicketId>) -> Response {
-    let ticket = mc.delete_ticket(id.0.id).await;
+pub async fn delete(mc: &ModelController, ctx: Ctx, id: PathParams<TicketId>) -> Response {
+    let ticket = mc.delete_ticket(ctx, id.0.id).await;
 
     match ticket {
         Ok(ticket) => {

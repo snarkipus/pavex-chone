@@ -33,6 +33,7 @@ pub fn invalid_ticket(e: &TicketError) -> Response {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Ticket {
     pub id: u64,
+    pub cid: u64, // creator user-id
     pub title: String,
 }
 

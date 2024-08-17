@@ -3,7 +3,6 @@ use serde::Deserialize;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-#[allow(unused_imports)]
 use crate::{
     ctx::Ctx,
     tickets::{Ticket, TicketError, TicketForCreate, TicketResult},
@@ -55,18 +54,23 @@ impl ModelController {
 impl ModelController {
     #[tracing::instrument(
         name = "create ticket",
-        skip(self, ticket_fc),
+        skip(self, ctx, ticket_fc),
         fields(
             ticket_id = tracing::field::Empty,
             ticket_title = tracing::field::Empty,
         )
     )]
-    pub async fn create_ticket(&self, ticket_fc: TicketForCreate) -> TicketResult<Ticket> {
+    pub async fn create_ticket(
+        &self,
+        ctx: Ctx,
+        ticket_fc: TicketForCreate,
+    ) -> TicketResult<Ticket> {
         let mut store = self.tickets_store.lock().await;
 
         let id = store.len() as u64;
         let ticket = Ticket {
             id,
+            cid: ctx.user_id(),
             title: ticket_fc.title,
         };
         store.push(Some(ticket.clone()));
@@ -76,7 +80,7 @@ impl ModelController {
         Ok(ticket)
     }
 
-    #[tracing::instrument(name = "list tickets", skip(self))]
+    #[tracing::instrument(name = "list tickets", skip(self, _ctx))]
     pub async fn list_tickets(&self, _ctx: Ctx) -> Result<Vec<Ticket>, TicketError> {
         let store = self.tickets_store.lock().await;
         let tickets = store.iter().filter_map(|t| t.clone()).collect();
@@ -85,13 +89,13 @@ impl ModelController {
 
     #[tracing::instrument(
         name = "delete ticket",
-        skip(self, id),
+        skip(self, _ctx, id),
         fields(
             ticket_id = id,
             error = tracing::field::Empty,
         )
     )]
-    pub async fn delete_ticket(&self, id: u64) -> Result<Ticket, TicketError> {
+    pub async fn delete_ticket(&self, _ctx: Ctx, id: u64) -> Result<Ticket, TicketError> {
         let mut store = self.tickets_store.lock().await;
         let ticket = store.get_mut(id as usize).and_then(|t| t.take());
         ticket.ok_or({
