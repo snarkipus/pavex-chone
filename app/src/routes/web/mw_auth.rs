@@ -30,7 +30,7 @@ pub enum AuthError {
 pub async fn mw_require_auth(
     request_cookies: RequestCookies<'_>,
     ctx: &mut Ctx,
-    _response_cookies: &mut ResponseCookies,
+    response_cookies: &mut ResponseCookies,
 ) -> Result<Processing, AuthError> {
     let Some(auth_token) = request_cookies.get(AUTH_TOKEN) else {
         tracing::Span::current().record("auth_status", "fail");
@@ -48,7 +48,12 @@ pub async fn mw_require_auth(
         Err(e) => {
             tracing::Span::current().record("auth_status", "fail");
             tracing::Span::current().record("error", e.to_string());
-            Err(e)
+            // Err(e)
+            let removal_cookie = RemovalCookie::new(AUTH_TOKEN);
+            response_cookies.insert(removal_cookie);
+            Ok(Processing::EarlyReturn(
+                Response::unauthorized().set_typed_body("Unauthorized Basic Bitch"),
+            ))
         }
     }
 }

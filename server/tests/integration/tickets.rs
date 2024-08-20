@@ -1,5 +1,6 @@
 use crate::helpers::TestApi;
 use app::tickets::{Ticket, TicketForCreate};
+use reqwest::header::SET_COOKIE;
 use reqwest::{cookie::Jar, StatusCode, Url};
 use std::sync::Arc;
 
@@ -45,6 +46,10 @@ async fn rejects_bad_auth_token() {
 
     // Assert
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+    assert_eq!(
+        response.headers().get(SET_COOKIE).unwrap(),
+        "auth-token=; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    );
     assert_eq!(response.text().await.unwrap(), "Unauthorized Basic Bitch");
 }
 
